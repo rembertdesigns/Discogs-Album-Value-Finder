@@ -1,18 +1,15 @@
-# Replace with your Discogs API credentials
+```python
 consumer_key = 'mJEsOhslNJJbQVBpBxwF'
 consumer_secret = 'VGacJtQoYmlQWjEZKlFaUBktxVNKfeyb'
 user_agent = 'MyDiscogsApp/2.0'
 
-# Discogs OAuth URLs
 request_token_url = 'https://api.discogs.com/oauth/request_token'
 authorize_url = 'https://www.discogs.com/oauth/authorize'
 access_token_url = 'https://api.discogs.com/oauth/access_token'
 def get_oauth_token():
     
-    # Create OAuth1 session
     discogs_oauth = OAuth1Session(consumer_key, client_secret=consumer_secret)
     
-    # Get request token (retry if expired)
     while True:
         try:
             fetch_response = discogs_oauth.fetch_request_token(request_token_url)
@@ -22,22 +19,18 @@ def get_oauth_token():
         except requests_oauthlib.oauth1_session.TokenRequestDenied as e:
             print(f"Request token expired. Retrying... {e}")
             
-    # Get authorization
     authorization_url = discogs_oauth.authorization_url(authorize_url)
     print(f'Please go here and authorize: {authorization_url}')
     verifier = input('Paste the verification code here: ')
     
-    # Get the access token
     oauth_tokens = discogs_oauth.fetch_access_token(
         access_token_url,
         verifier=verifier
     )
     return oauth_tokens['oauth_token'], oauth_tokens['oauth_token_secret']
 
-# Get OAuth token (you only need to do this once)
 access_token, access_token_secret = get_oauth_token()
 
-# Initialize Discogs client with OAuth (move this before the functions)
 discogs = discogs_client.Client(
     user_agent,
     consumer_key=consumer_key,
@@ -52,7 +45,6 @@ def search_album():
     query = entry.get()
     condition = condition_var.get()
     try:
-        # Try to search by barcode first
         results = discogs.search(query, type='release')
         if not results:
             # If no results, try searching by release ID
@@ -66,7 +58,6 @@ def search_album():
     except Exception as e:
         messagebox.showerror("Error", str(e))
 def get_historical_data(release):
-    # Get historical sales data
     try:
         if hasattr(release, 'marketplace_stats'):
             marketplace_data = release.marketplace_stats
@@ -79,7 +70,6 @@ def get_historical_data(release):
         return None 
 def estimate_price(condition, historical_data):
     
-    # Estimate price based on condition and historical data
     if historical_data is not None:
         condition_multipliers = {
             "Mint (M)": 1.0,
@@ -100,22 +90,16 @@ def display_result(release_id, condition):
     for widget in result_frame.winfo_children():
         widget.destroy()
 
-    # Fetch marketplace data using release ID
     try:
         response = requests.get(f"https://api.discogs.com/releases/{release_id}/market", headers={'Authorization': f"Discogs token={access_token}"})
         response.raise_for_status()  # Raise an exception for bad status codes
         marketplace_data = response.json()
         
-        # ... (rest of the display_result function)
-        
-        # Display price information
         if marketplace_data['lowest_price'] is not None:
             tk.Label(result_frame, text=f"Lowest Price: ${marketplace_data['lowest_price']:.2f}").pack()
             tk.Label(result_frame, text=f"Number of Listings: {marketplace_data['num_for_sale']}").pack()
         else:
             tk.Label(result_frame, text=f"No listings available or release is blocked for sale.").pack()
-
-        # ... (rest of the display_result function)
 
     except requests.exceptions.RequestException as e:
         if isinstance(e, requests.exceptions.HTTPError) and e.response.status_code == 404:
@@ -123,16 +107,13 @@ def display_result(release_id, condition):
         else:
             messagebox.showerror("Error", f"Error retrieving marketplace data: {e}")
 
-# Create main window
 root = tk.Tk()
 root.title("Vinyl Album Value Finder")
 
-# Create and pack widgets
 tk.Label(root, text="Enter Barcode or Release ID:").pack()
 entry = tk.Entry(root, width=50)
 entry.pack()
 
-# Condition dropdown
 tk.Label(root, text="Condition:").pack()
 condition_var = tk.StringVar(root)
 condition_var.set(CONDITIONS[0])  # default value
@@ -142,5 +123,5 @@ tk.Button(root, text="Search", command=search_album).pack()
 result_frame = tk.Frame(root)
 result_frame.pack(pady=20)
 
-# Start the GUI event loop
 root.mainloop()
+```
