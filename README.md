@@ -22,3 +22,21 @@ The Vinyl Album Value Finder is a Python application that allows users to search
 ## Installation
 
 1. Clone this repository:
+git clone https://github.com/rembertdesigns/discogs-album-value-finder.git
+
+2. Navigate to the project directory:
+cd vinyl-album-value-finder
+
+3. Install the required dependencies:
+pip install -r requirements.txt
+
+## Configuration
+
+1. Obtain Discogs API credentials:
+- Go to https://www.discogs.com/settings/developers
+- Create a new application to get your Consumer Key and Consumer Secret
+
+2. Open `vinyl_value_finder.py` and replace the placeholder credentials with your own:
+```python
+consumer_key = 'YOUR_CONSUMER_KEY'
+consumer_secret = 'YOUR_CONSUMER_SECRET'
